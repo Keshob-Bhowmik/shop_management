@@ -1,5 +1,6 @@
 <?php
 include "common/navbar.php";
+
 if (isset($_POST['createbtn'])) {
     $name = $_POST['name'];
     $price = $_POST['price'];
