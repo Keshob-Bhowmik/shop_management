@@ -510,8 +510,8 @@ include "connection/config.php";
                 </a>
                 <ul class="submenu" id="content-submenu">
                     <li><a href="sales.php">All Sales</a></li>
-                    <!-- <li><a href="#">Pages</a></li>
-                    <li><a href="#">Media</a></li>
+                    <li><a href="sales_history.php">History</a></li>
+                    <!-- <li><a href="#">Media</a></li>
                     <li><a href="#">Categories</a></li> -->
                 </ul>
             </li>
