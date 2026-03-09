@@ -1,5 +1,11 @@
 <?php
+session_start();
 include "connection/config.php";
+
+if(!isset($_SESSION['username'])){
+    header("location: login.php");
+    exit();
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -460,6 +466,7 @@ include "connection/config.php";
 
 <body>
     <!-- Sidebar -->
+
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <h3>AdminPanel</h3>
@@ -568,7 +575,7 @@ include "connection/config.php";
             </li> -->
 
             <li>
-                <a href="#">
+                <a href="logout.php">
                     <i class="fas fa-sign-out-alt menu-icon"></i>
                     <span class="menu-text">Logout</span>
                 </a>

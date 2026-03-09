@@ -4,30 +4,35 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 if (isset($_POST['cart'])) {
     $cart = json_decode($_POST['cart'], true);
-    $total = 0;
-    foreach ($cart as $item) {
-        $total += $item['subTotal'];
-    }
-    $stmt = $conn->prepare("INSERT INTO sales(total_amount) VALUES(?)");
-    $stmt->bind_param("d", $total);
-    $stmt->execute();
-    $sale_id = $conn->insert_id;
-
-    $stmt2 = $conn->prepare("INSERT INTO sale_items(sale_id,product_id,quantity,price,subtotal) VALUES(?,?,?,?,?)");
 
     foreach ($cart as $item) {
-        $check = $conn->prepare("SELECT quantity, name FROM products WHERE id=?");
+        $check = $conn->prepare("SELECT quantity FROM products WHERE id=?");
         $check->bind_param("i", $item['productId']);
         $check->execute();
-        $check->bind_result($availableQty, $name);
+        $check->bind_result($availableQty);
         $check->fetch();
         $check->close();
 
         if ($item['quantity'] > $availableQty) {
-            echo "Product '$name' not available in requested quantity.";
-            exit();
+            echo "error";
+            exit(); 
         }
+    }
 
+    $total = 0;
+    foreach ($cart as $item) {
+        $total += $item['subTotal'];
+    }
+
+    $stmt = $conn->prepare("INSERT INTO sales(total_amount) VALUES(?)");
+    $stmt->bind_param("d", $total);
+    $stmt->execute();
+    $sale_id = $conn->insert_id;
+    $stmt->close();
+
+    $stmt2 = $conn->prepare("INSERT INTO sale_items(sale_id,product_id,quantity,price,subtotal) VALUES(?,?,?,?,?)");
+
+    foreach ($cart as $item) {
         $stmt2->bind_param(
             "iiidd",
             $sale_id,
@@ -36,10 +41,11 @@ if (isset($_POST['cart'])) {
             $item['price'],
             $item['subTotal']
         );
-
         $stmt2->execute();
-        exit();
     }
+    $stmt2->close();
+
+    echo "success";
 }
 ?>
 
@@ -356,7 +362,7 @@ if (isset($_POST['cart'])) {
                 cart = [];
                 renderTable();
             } else {
-                alert(data);
+                alert("Quantity is not available");
             }
 
         });

@@ -1,5 +1,21 @@
 <?php
 include "common/navbar.php";
+
+$products = [];
+$stmt = $conn->prepare("SELECT id,sale_date,total_amount FROM sales");
+$stmt->execute();
+$stmt->bind_result($id, $date, $total_amount);
+$stmt->store_result();
+if ($stmt->num_rows > 0) {
+    while ($stmt->fetch()) {
+        $products[] = [
+            "id" => $id,
+            "sale_date" => $date,
+            "total_amount" => $total_amount
+        ];
+    }
+}
+
 ?>
 
 <div class="main-content" id="mainContent">
@@ -41,8 +57,7 @@ include "common/navbar.php";
             <div class="table-card">
                 <div class="card-header">
                     <h5>Sales</h5>
-                    <a href="sales.php" class="btn btn-sm btn-primary" data-bs-toggle="modal"
-                        data-bs-target="#createModal">Add Sale</a>
+                    <a href="sales.php" class="btn btn-sm btn-primary">Add Sale</a>
                 </div>
 
                 <div class="table-responsive">
@@ -53,58 +68,81 @@ include "common/navbar.php";
                                 <th>Sales ID</th>
                                 <th>Date</th>
                                 <th>Total Amount</th>
-                                <th>Actions</th>
+                                
                             </tr>
                         </thead>
                         <tbody>
                             <tr>
-                                <td>#1</td>
-                                <td>S001</td>
-                                <td>2024-01-15 10:30:00</td>
-                                <td>$1,250.50</td>
-                                <td>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewModal"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fas fa-edit"></i></button>
-                                    <button type="button" class="action-btn"><i class="fas fa-trash"></i></button>
-                                </td>
+                                <?php foreach ($products as $index => $product) { ?>
+                                    <td>#<?= $index + 1 ?></td>
+                                    <td><?= $product['id'] ?></td>
+                                    <td><?= $product['sale_date'] ?></td>
+                                    <td><?= $product['total_amount'] ?></td>
+
+                                    <!-- <td>
+                                        <button type="button" class="btn btn-primary" onclick="viewModal(<?= $product['id'] ?>)" data-bs-toggle="modal" data-bs-target="#viewModal"><i class="fas fa-eye"></i></button>
+                                        <button class="action-btn" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fas fa-edit"></i></button>
+                                        <button type="button" class="action-btn"><i class="fas fa-trash"></i></button>
+                                    </td> -->
                             </tr>
-                            <tr>
-                                <td>#2</td>
-                                <td>S002</td>
-                                <td>2024-01-15 14:20:00</td>
-                                <td>$89.99</td>
-                                <td>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewModal"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fas fa-edit"></i></button>
-                                    <button type="button" class="action-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>#3</td>
-                                <td>S003</td>
-                                <td>2024-01-16 09:15:00</td>
-                                <td>$350.00</td>
-                                <td>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewModal"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fas fa-edit"></i></button>
-                                    <button type="button" class="action-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>#4</td>
-                                <td>S004</td>
-                                <td>2024-01-16 16:45:00</td>
-                                <td>$2,100.75</td>
-                                <td>
-                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#viewModal"><i class="fas fa-eye"></i></button>
-                                    <button class="action-btn" data-bs-toggle="modal" data-bs-target="#editModal"><i class="fas fa-edit"></i></button>
-                                    <button type="button" class="action-btn"><i class="fas fa-trash"></i></button>
-                                </td>
-                            </tr>
+                        <?php } ?>
+
                         </tbody>
                     </table>
                 </div>
             </div>
         </div>
     </div>
+
+
+    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <!-- Modal Header -->
+                <div class="modal-header">
+                    <h5 class="modal-title" id="viewModalLabel">View Product Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Modal Body -->
+                <div class="modal-body">
+                    <!-- Hidden Product ID (keep it hidden for reference) -->
+                    <input type="hidden" id="view_product_id">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Product Name</label>
+                        <p class="form-control-static" id="view_product_name" style="padding: 0.375rem 0; border-bottom: 1px solid #dee2e6;"></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Price</label>
+                        <p class="form-control-static" id="view_product_price" style="padding: 0.375rem 0; border-bottom: 1px solid #dee2e6;"></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Quantity</label>
+                        <p class="form-control-static" id="view_product_quantity" style="padding: 0.375rem 0; border-bottom: 1px solid #dee2e6;"></p>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Created Date</label>
+                        <p class="form-control-static" id="view_product_date" style="padding: 0.375rem 0; border-bottom: 1px solid #dee2e6;"></p>
+                    </div>
+                </div>
+
+                <!-- Modal Footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+
+</script>
+
+<?php
+include "common/footer.php";
+?>
